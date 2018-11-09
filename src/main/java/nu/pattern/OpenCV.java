@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 
 import org.opencv.core.Core;
 
-import sun.reflect.CallerSensitive;
 
 public class OpenCV {
 
@@ -200,7 +199,8 @@ public class OpenCV {
     	 * "no opencv_java<VERSION> in java.library.path"
     	 * and "no opencv_java<VERSION> in java.library.path: [<LIBRARY_PATHS>]" (Java 10+) */
     	final String baseError = String.format("no %s in java.library.path", Core.NATIVE_LIBRARY_NAME);
-        if (!(ule.getMessage().equals(baseError)) ||
+    	System.out.println(ule.getMessage().replace(baseError, ""));
+        if (!(ule.getMessage().equals(baseError)) &&
         		ule.getMessage().replace(baseError, "").matches(": \\[(.[^\\[\\]])*\\]")) {
           logger.log(Level.FINEST, String.format("Encountered unexpected loading error."), ule);
           throw ule;
@@ -317,7 +317,6 @@ public class OpenCV {
   /**
    * Selects the appropriate packaged binary, extracts it to a temporary location (which gets deleted when the JVM shuts down), and returns a {@link Path} to that file.
    */
-  @CallerSensitive
   private static Path extractNativeBinary() {
     final OS os = OS.getCurrent();
     final Arch arch = Arch.getCurrent();
