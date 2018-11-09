@@ -196,7 +196,12 @@ public class OpenCV {
       } catch (final UnsatisfiedLinkError ule) {
 
         /* Only update the library path and load if the original error indicates it's missing from the library path. */
-        if (!String.format("no %s in java.library.path", Core.NATIVE_LIBRARY_NAME).equals(ule.getMessage())) {
+    	/* Test for known error messages:
+    	 * "no opencv_java<VERSION> in java.library.path"
+    	 * and "no opencv_java<VERSION> in java.library.path: [<LIBRARY_PATHS>]" (Java 10+) */
+    	final String baseError = String.format("no %s in java.library.path", Core.NATIVE_LIBRARY_NAME);
+        if (!(ule.getMessage().equals(baseError)) ||
+        		ule.getMessage().replace(baseError, "").matches(": \\[(.[^\\[\\]])*\\]")) {
           logger.log(Level.FINEST, String.format("Encountered unexpected loading error."), ule);
           throw ule;
         }
